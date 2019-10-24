@@ -15,19 +15,19 @@ the combinatorial explosion of permutiations and cross-product.
 
 Available from Clojars:
 
-    [clj-http-mock "0.1.0"]
-    
+    [b-ryan/clj-http-mock "0.5.0"]
+
 ## Usage
 
     (require '[clj-http.client :as http]
              '[clj-http-mock.core :as mock])
-             
+
     (mock/with-mock-routes
-      [(mock/route :get "http://www.google.com/")      
+      [(mock/route :get "http://www.google.com/")
        (constantly {:status 200 :body "Mocked"})]
       (http/get "http://www.google.com/"))
     ;;=> {:status 200 :body "Mocked"}
-    
+
 To match any query parameters:
 
     (mock/with-mock-routes
@@ -37,8 +37,8 @@ To match any query parameters:
       (http/get "http://www.google.com?q=mock"))
     ;;=> {:status 200 :body "q=mock"}
 
-## Defining mock routes     
-             
+## Defining mock routes
+
 Mock routes are defined as a vector. Requests are matched against the
 routes in the order they are defined, and the first match wins. If no
 mock route matches, the request is passed on to the original
@@ -70,8 +70,8 @@ equivalent.
 
 For example, the following mock route:
 
-      {:method :get 
-       :scheme :http 
+      {:method :get
+       :scheme :http
        :host "www.google.com"
        :port 80
        :path "/"
@@ -83,22 +83,22 @@ with a single map argument, it will merge in some defaults, so the above
 is equivalent to:
 
     (mock/route {:host "www.google.com" :query-params {:q #".*"}})
-    
+
 Called with an HTTP method (:get, :put, :post, etc.) and URL, it will
 parse the URL to generate the route map for you. So we could also write:
 
     (mock/route :get "http://www.google.com/")
-    
+
 to match GET requests with no query string, or:
 
     (mock/route :get "http://www.google.com/" {:q #".*})
-    
+
 which will produce the map we started with. If you don't need special
 matching of the query parameters (values are constants that much match
 literally), you can define your route like so:
 
     (mock/route :get "http://www.google.com/?q=foo&sort=relevance")
-    
+
 Note that, because we parse the query string and match against the
 resulting map, this route will match both
 `http://www.google.com/?q=foo&sort=relevance` and
@@ -122,15 +122,15 @@ generating responses:
 * HTTP status 200, body read from `clojure.java.io/resource`
 
     `(resource-response "my-mocks/page.html")`
-    
+
 * HTTP status 302, Location header set to `url`
 
     `(redirect-response url)`
-    
+
 * HTTP status 307, Location header set to `url`
 
     `(redirect-response url :status 307)`
-    
+
 * HTTP status 404, empty body
 
     `(not-found-response)`

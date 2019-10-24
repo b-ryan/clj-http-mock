@@ -143,16 +143,31 @@
                  (.getContent body)
                  body))))
 
+(defn- throw-no-fake-route-exception
+  [request]
+  (throw
+    (Exception. (str "No matching mock route found to handle request: "
+                     (pr-str (select-keys request [:scheme :request-method :server-name
+                                                   :server-port :uri :query-string]))))))
+
 (defn try-intercept
-  [origfn request]
-  (if-let [handler (mock-handler-for request)]
-    (-> (handler (unwrap-body request)) (update-in [:body] utf8-bytes))
-    (if *in-isolation*
-      (throw
-       (Exception. (str "No matching mock route found to handle request: "
-                        (pr-str (select-keys request [:scheme :request-method :server-name
-                                                      :server-port :uri :query-string])))))
-      (origfn request))))
+  ([origfn request respond raise]
+   (if-let [handler (mock-handler-for request)]
+     (try
+       (-> (handler (unwrap-body request))
+           (update-in [:body] utf8-bytes)
+           respond)
+       (catch Exception e (raise e)))
+     (if *in-isolation*
+       (throw-no-fake-route-exception)
+       (origfn request respond raise))))
+  ([origfn request]
+   (if-let [handler (mock-handler-for request)]
+     (-> (handler (unwrap-body request))
+         (update-in [:body] utf8-bytes))
+     (if *in-isolation*
+       (throw-no-fake-route-exception)
+       (origfn request)))))
 
 (robert.hooke/add-hook #'clj-http.core/request
                        #'try-intercept)
