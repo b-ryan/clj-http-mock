@@ -15,7 +15,7 @@ the combinatorial explosion of permutiations and cross-product.
 
 Available from Clojars:
 
-    [b-ryan/clj-http-mock "0.5.0"]
+    [b-ryan/clj-http-mock "0.6.0"]
 
 ## Usage
 

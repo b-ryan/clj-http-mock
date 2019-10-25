@@ -159,14 +159,14 @@
            respond)
        (catch Exception e (raise e)))
      (if *in-isolation*
-       (throw-no-fake-route-exception)
+       (throw-no-fake-route-exception request)
        (origfn request respond raise))))
   ([origfn request]
    (if-let [handler (mock-handler-for request)]
      (-> (handler (unwrap-body request))
          (update-in [:body] utf8-bytes))
      (if *in-isolation*
-       (throw-no-fake-route-exception)
+       (throw-no-fake-route-exception request)
        (origfn request)))))
 
 (robert.hooke/add-hook #'clj-http.core/request
